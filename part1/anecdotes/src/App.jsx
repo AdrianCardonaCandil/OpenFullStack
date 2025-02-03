@@ -1,5 +1,26 @@
 import { useState } from 'react'
 
+const DailyAnecdote = ({text, votes}) => {
+  return (
+    <div>
+      <h1>Anecdote of the day</h1>
+      <p>{text}</p>
+      <p>has {votes} votes</p>
+    </div>
+  )
+}
+
+const MostVotedAnecdote = ({text}) => {
+  return (
+    <div>
+      <h1>Anecdote with most votes</h1>
+      <p>{text}</p>
+    </div>
+  )
+}
+
+const Button = ({handler, text}) => <button onClick={handler}>{text}</button>
+
 const App = () => {
   const anecdotes = [
     'If it hurts, do it more often.',
@@ -21,17 +42,14 @@ const App = () => {
     updated[selected] += 1
     setVotes(updated)
   }
-  const getMaxVoted = () => votes.indexOf(Math.max(...votes))
+  const getMostVoted = () => votes.indexOf(Math.max(...votes))
 
   return (
     <div>
-      <h1>Anecdote of the day</h1>
-      <p>{anecdotes[selected]}</p>
-      <p>has {votes[selected]} votes</p>
-      <button onClick={changeAnecdote}>next anecdote</button>
-      <button onClick={changeVotes}>vote</button>
-      <h1>Anecdote with most votes</h1>
-      <p>{anecdotes[getMaxVoted()]}</p>
+      <DailyAnecdote text={anecdotes[selected]} votes={votes[selected]}/>
+      <Button handler={changeAnecdote} text={'next anecdote'}/>
+      <Button handler={changeVotes} text={'vote'}/>
+      <MostVotedAnecdote text={anecdotes[getMostVoted()]}/>
     </div>
   )
 }
