@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import phonebookService from './services/phonebook'
 
 const App = () => {
   // Stored persons data
@@ -10,7 +10,7 @@ const App = () => {
 
   // Fetching initial data from json-server using axios library and effect-hooks.
   useEffect(()=>{
-    axios.get('http://localhost:3001/persons').then(response => setPersons(response.data))
+    phonebookService.getAll().then(storedPersons => setPersons(storedPersons))
   }, [])
 
   // State for name, number and filter inputs
@@ -31,12 +31,21 @@ const App = () => {
       return
     }
     if (persons.findIndex(item => item.name === newName) == -1) {
-      setPersons(persons.concat([{name: newName, number: newNumber}]))
-      setNewName('')
-      setNewNumber('')
+      phonebookService.create({name: newName, number: newNumber}).then(created => {
+        setPersons(persons.concat(created))
+        setNewName('')
+        setNewNumber('')
+      })
     } else {
       alert(`${newName} is already added to phonebook`)
     }
+  }
+
+  const handlePersonDelete = (name, id) => {
+    if (!window.confirm(`Delete ${name}?`)) return
+    phonebookService.erase(id).then(deleted => {
+      setPersons(persons.filter(person => person.id !== deleted.id))
+    })
   }
 
   // Filter persons to show
@@ -55,7 +64,7 @@ const App = () => {
         numberProps={{value: newNumber, handler: handleInputNumber}}
         handler={handleFormSubmit}>
       </PersonForm>
-      <Persons persons={personsToShow}></Persons>
+      <Persons persons={personsToShow} deleteHandler = {handlePersonDelete}></Persons>
     </div>
   )
 }
