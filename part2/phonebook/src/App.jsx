@@ -33,12 +33,16 @@ const App = () => {
     if (persons.findIndex(item => item.name === newName) == -1) {
       phonebookService.create({name: newName, number: newNumber}).then(created => {
         setPersons(persons.concat(created))
-        setNewName('')
-        setNewNumber('')
       })
     } else {
-      alert(`${newName} is already added to phonebook`)
+      if (!window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) return
+      const old = persons.find(person => person.name === newName)
+      phonebookService.update(old.id, {...old, number: newNumber}).then(updated => {
+        setPersons(persons.map(person => person.name !== newName ? person : updated))
+      })
     }
+    setNewName('')
+    setNewNumber('')
   }
 
   const handlePersonDelete = (name, id) => {
